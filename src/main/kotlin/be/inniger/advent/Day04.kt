@@ -5,66 +5,55 @@ import be.inniger.advent.util.tail
 
 object Day04 {
     private const val GRID_SIZE = 5
+    private val splitRegex = """ +""".toRegex()
 
-    fun solveFirst(bingo: List<String>): Int {
+    fun solveFirst(bingo: List<String>) = getResults(bingo).minByOrNull { it.turn }!!.score
+    fun solveSecond(bingo: List<String>) = getResults(bingo).maxByOrNull { it.turn }!!.score
+
+    private fun getResults(bingo: List<String>): List<Result> {
         val draws = bingo.head().split(",").map { it.toInt() }
-        val boards = bingo.tail().chunked(GRID_SIZE + 1).map { Board.of(it) }
+        val boards = bingo.tail().chunked(GRID_SIZE + 1).map { parseBoard(it) }
 
-        for (draw in draws) {
-            for (board in boards) {
-                for (row in (0 until GRID_SIZE)) {
-                    for (col in (0 until GRID_SIZE)) {
-                        if (board.numbers[row][col] == draw) board.marked.add(Position(row, col))
-                    }
-                }
-
-                if (board.isWinning()) {
-                    var sum = 0
-                    for (row in (0 until GRID_SIZE)) {
-                        for (col in (0 until GRID_SIZE)) {
-                            val position = Position(row, col)
-
-                            if (!board.marked.contains(position)) sum += board.numbers[row][col]
-                        }
-                    }
-
-                    return sum * draw
-                }
-            }
-        }
-
-        error("Should have found a result by now")
+        return boards.map { playBoard(it, draws) }
     }
+
+    private fun parseBoard(board: List<String>): List<List<Int>> = board.tail().map { row ->
+        row.trim().split(splitRegex).map { number -> number.toInt() }
+    }
+
+    private tailrec fun playBoard(
+        board: List<List<Int>>, draws: List<Int>, marked: Set<Position> = setOf(), turn: Int = 0
+    ): Result = if (isWinning(marked)) Result(turn, sumUnmarked(board, marked) * draws[turn - 1])
+    else playBoard(board, draws, marked + markPositions(draws[turn], board), turn + 1)
+
+    private fun isWinning(marked: Set<Position>) =
+        (0 until GRID_SIZE).any { isWinningHorizontally(marked, row = it) || isWinningVertically(marked, col = it) }
+
+    private tailrec fun isWinningHorizontally(marked: Set<Position>, row: Int, col: Int = 0): Boolean = when {
+        col >= GRID_SIZE -> true
+        !marked.contains(Position(row, col)) -> false
+        else -> isWinningHorizontally(marked, row, col + 1)
+    }
+
+    private tailrec fun isWinningVertically(marked: Set<Position>, row: Int = 0, col: Int): Boolean = when {
+        row >= GRID_SIZE -> true
+        !marked.contains(Position(row, col)) -> false
+        else -> isWinningVertically(marked, row + 1, col)
+    }
+
+    private fun markPositions(draw: Int, board: List<List<Int>>) = (0 until GRID_SIZE).flatMap { row ->
+        (0 until GRID_SIZE).filter { col ->
+            board[row][col] == draw
+        }.map { col -> Position(row, col) }
+    }
+
+    private fun sumUnmarked(board: List<List<Int>>, marked: Set<Position>): Int = (0 until GRID_SIZE).flatMap { row ->
+        (0 until GRID_SIZE).filter { col ->
+            !marked.contains(Position(row, col))
+        }.map { col -> board[row][col] }
+    }.sum()
 
     private data class Position(val row: Int, val col: Int)
 
-    private data class Board(val numbers: List<List<Int>>, val marked: MutableSet<Position> = mutableSetOf()) {
-
-        companion object {
-            private val regex = """ +""".toRegex()
-
-            fun of(board: List<String>) = Board(board.tail().map { row ->
-                row.trim().split(regex).map { number -> number.toInt() }
-            })
-        }
-
-        fun isWinning(): Boolean {
-            for (i in (0 until GRID_SIZE)) {
-                var horizontalMatches = 0
-                var verticalMatches = 0
-
-                for (j in (0 until GRID_SIZE)) {
-                    val horizontalPosition = Position(i, j)
-                    val verticalPosition = Position(j, i)
-
-                    if (marked.contains(horizontalPosition)) horizontalMatches++
-                    if (marked.contains(verticalPosition)) verticalMatches++
-                }
-
-                if (horizontalMatches == GRID_SIZE || verticalMatches == GRID_SIZE) return true
-            }
-
-            return false
-        }
-    }
+    private data class Result(val turn: Int, val score: Int)
 }
