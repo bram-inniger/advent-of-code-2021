@@ -16,7 +16,7 @@ class Day01Test {
 
     @Test
     fun validateFirstSolution() {
-        assertEquals(1466, Day01.solveFirst(input))
+        assertEquals(1_466, Day01.solveFirst(input))
     }
 
     @Test
@@ -26,6 +26,6 @@ class Day01Test {
 
     @Test
     fun validateSecondSolution() {
-        assertEquals(1491, Day01.solveSecond(input))
+        assertEquals(1_491, Day01.solveSecond(input))
     }
 }

@@ -5,15 +5,12 @@ import be.inniger.advent.util.tail
 
 object Day02 {
 
-    fun solveFirst(commands: List<String>): Int {
-        val endPosition = move(commands.map { Command.of(it) }, this::calculateSimplePosition)
-        return endPosition.depth * endPosition.horizontal
-    }
+    fun solveFirst(commands: List<String>): Int = solve(commands, this::calculateSimplePosition)
+    fun solveSecond(commands: List<String>): Int = solve(commands, this::calculateComplicatedPosition)
 
-    fun solveSecond(commands: List<String>): Int {
-        val endPosition = move(commands.map { Command.of(it) }, this::calculateComplicatedPosition)
-        return endPosition.depth * endPosition.horizontal
-    }
+    private fun solve(commands: List<String>, positionCalculator: (Command, Position) -> Position) =
+        move(commands.map { Command.of(it) }, positionCalculator)
+            .let { it.depth * it.horizontal }
 
     private tailrec fun move(
         commands: List<Command>,
@@ -46,7 +43,6 @@ object Day02 {
         }
 
     private data class Command(val direction: Direction, val distance: Int) {
-
         companion object {
             private val regex = """^(\w+) (\d+)$""".toRegex()
 
@@ -60,11 +56,7 @@ object Day02 {
         }
     }
 
-    private enum class Direction {
-        FORWARD, UP, DOWN
-    }
+    private enum class Direction { FORWARD, UP, DOWN }
 
-    private data class Position(
-        val horizontal: Int = 0, val depth: Int = 0, val aim: Int = 0
-    )
+    private data class Position(val horizontal: Int = 0, val depth: Int = 0, val aim: Int = 0)
 }

@@ -17,17 +17,22 @@ object Day03 {
     }
 
     private tailrec fun determineRating(
-        diagnostics: List<String>, predicate: (Any, Any) -> Boolean, position: Int = 0
-    ): Int = if (diagnostics.size <= 1) diagnostics.single().toInt(2)
-    else {
-        val common = mostCommonValue(diagnostics, position)
-        val newDiagnostics = diagnostics.filter { predicate(it[position], common) }
+        diagnostics: List<String>,
+        predicate: (Any, Any) -> Boolean,
+        position: Int = 0
+    ): Int =
+        if (diagnostics.size <= 1) diagnostics.single().toInt(2)
+        else {
+            val common = mostCommonValue(diagnostics, position)
+            val newDiagnostics = diagnostics.filter { predicate(it[position], common) }
 
-        determineRating(newDiagnostics, predicate, position + 1)
-    }
+            determineRating(newDiagnostics, predicate, position + 1)
+        }
 
     private fun mostCommonValue(diagnostics: List<String>, position: Int) =
-        diagnostics.map { it[position] }.count { it == '1' }.let { if (it * 2 >= diagnostics.size) '1' else '0' }
+        diagnostics.map { it[position] }
+            .count { it == '1' }
+            .let { if (it * 2 >= diagnostics.size) '1' else '0' }
 
     private fun List<Char>.asInt() = this.joinToString("").toInt(2)
 }

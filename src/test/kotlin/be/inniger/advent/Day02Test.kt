@@ -23,7 +23,7 @@ class Day02Test {
 
     @Test
     fun validateFirstSolution() {
-        assertEquals(1250395, Day02.solveFirst(input))
+        assertEquals(1_250_395, Day02.solveFirst(input))
     }
 
     @Test
@@ -33,6 +33,6 @@ class Day02Test {
 
     @Test
     fun validateSecondSolution() {
-        assertEquals(1451210346, Day02.solveSecond(input))
+        assertEquals(1_451_210_346, Day02.solveSecond(input))
     }
 }
