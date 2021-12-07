@@ -1,6 +1,7 @@
 package be.inniger.advent
 
 import kotlin.math.abs
+import kotlin.math.floor
 
 object Day07 {
 
@@ -12,4 +13,17 @@ object Day07 {
 
         return crabs.sumOf { abs(it - median) }
     }
+
+    fun solveSecond(crabs: List<Int>): Int {
+        val averageFloor = floor(crabs.average()).toInt()
+        val averageCeil = averageFloor + 1
+
+        return listOf(averageFloor, averageCeil)
+            .minOf { average ->
+                crabs.sumOf { crab -> getFuelBetween(crab, average) }
+            }
+    }
+
+    private fun getFuelBetween(a: Int, b: Int) =
+        (0..abs(b - a)).sumOf { it }
 }
