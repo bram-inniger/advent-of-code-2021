@@ -25,5 +25,5 @@ object Day07 {
     }
 
     private fun getFuelBetween(a: Int, b: Int) =
-        (0..abs(b - a)).sumOf { it }
+        abs(b - a) * (abs(b - a) + 1) / 2
 }
