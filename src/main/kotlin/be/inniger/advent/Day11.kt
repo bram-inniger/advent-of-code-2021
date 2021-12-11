@@ -10,32 +10,41 @@ object Day11 {
         .flatMap { ver -> (0 until GRID_DIMENSION).map { hor -> Position(ver, hor) } }
 
     fun solveFirst(grid: List<String>) =
-        step(grid.map { line -> line.map { octopus -> octopus.digitToInt() } }, 100)
+        countFlashes(StepResult(grid.map { line -> line.map { octopus -> octopus.digitToInt() } }), 100)
 
-    private tailrec fun step(
-        grid: List<List<Int>>,
-        steps: Int,
-        flashed: Set<Position> = setOf(),
-        increment: Boolean = true,
-        nrFlashed: Int = 0
-    ): Int =
-        when {
-            steps == 0 -> nrFlashed
-            increment -> step(increment(grid), steps, flashed, increment = false, nrFlashed)
-            shouldFlash(grid, flashed) -> {
-                val result = flash(grid, flashed)
-                step(result.grid, steps, result.flashed, increment = false, nrFlashed)
-            }
-            else -> step(reset(grid), steps - 1, flashed = setOf(), increment = true, nrFlashed + flashed.size)
+    fun solveSecond(grid: List<String>) =
+        findSync(StepResult(grid.map { line -> line.map { octopus -> octopus.digitToInt() } }))
+
+    private tailrec fun countFlashes(result: StepResult, nrTurns: Int, nrFlashes: Int = 0): Int =
+        if (nrTurns == 0) nrFlashes
+        else {
+            val nextResult = step(result.grid)
+            countFlashes(nextResult, nrTurns - 1, nrFlashes + nextResult.flashed.size)
         }
 
-    private fun increment(grid: List<List<Int>>): List<List<Int>> =
+    private tailrec fun findSync(result: StepResult, step: Int = 0): Int =
+        if (result.flashed.size == GRID_DIMENSION * GRID_DIMENSION) step
+        else findSync(step(result.grid), step + 1)
+
+    private tailrec fun step(
+        grid: List<List<Int>>, flashed: Set<Position> = setOf(), increment: Boolean = true
+    ): StepResult =
+        when {
+            increment -> step(increment(grid), flashed, increment = false)
+            shouldFlash(grid, flashed) -> {
+                val result = flash(grid, flashed)
+                step(result.grid, result.flashed, increment = false)
+            }
+            else -> StepResult(reset(grid), flashed)
+        }
+
+    private fun increment(grid: List<List<Int>>) =
         grid.map { line -> line.map { octopus -> octopus + 1 } }
 
     private fun shouldFlash(grid: List<List<Int>>, flashed: Set<Position>) =
         positions.any { grid[it.ver][it.hor] > MAX_ENERGY && !flashed.contains(it) }
 
-    private fun flash(grid: List<List<Int>>, flashed: Set<Position>): FlashResult {
+    private fun flash(grid: List<List<Int>>, flashed: Set<Position>): StepResult {
         val toFlash = positions.first { grid[it.ver][it.hor] > MAX_ENERGY && !flashed.contains(it) }
         val flashedGrid = grid.mapIndexed { ver, line ->
             List(line.size) { hor ->
@@ -43,10 +52,10 @@ object Day11 {
             }
         }
 
-        return FlashResult(flashedGrid, flashed + toFlash)
+        return StepResult(flashedGrid, flashed + toFlash)
     }
 
-    private fun reset(grid: List<List<Int>>): List<List<Int>> =
+    private fun reset(grid: List<List<Int>>) =
         grid.map { line -> line.map { octopus -> if (octopus > MAX_ENERGY) MIN_ENERGY else octopus } }
 
     private fun areNeighbours(p: Position, ver: Int, hor: Int) =
@@ -57,5 +66,5 @@ object Day11 {
 
     private data class Position(val hor: Int, val ver: Int)
 
-    private data class FlashResult(val grid: List<List<Int>>, val flashed: Set<Position>)
+    private data class StepResult(val grid: List<List<Int>>, val flashed: Set<Position> = setOf())
 }
