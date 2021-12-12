@@ -1,37 +1,31 @@
 package be.inniger.advent
 
-import be.inniger.advent.util.head
-import be.inniger.advent.util.tail
+private typealias Node = String
+private typealias Graph = Map<Node, Set<Node>>
 
 object Day12 {
 
     private const val START = "start"
     private const val END = "end"
 
-    fun solveFirst(connections: List<String>) =
-        countPaths(extractNeighbours(connections), START)
+    fun solveFirst(connections: List<String>) = countPaths(neighbours(connections), START, twice = false)
+    fun solveSecond(connections: List<String>) = countPaths(neighbours(connections), START, twice = true)
 
-    private tailrec fun extractNeighbours(
-        connections: List<String>,
-        neighbours: Map<String, Set<String>> = mapOf()
-    ): Map<String, Set<String>> =
-        if (connections.isEmpty()) neighbours
-        else {
-            val (a, b) = connections.head().split('-')
-            val aToB = a to ((neighbours[a] ?: setOf()) + b)
-            val bToA = b to ((neighbours[b] ?: setOf()) + a)
+    private fun neighbours(connections: List<String>) =
+        connections.map { it.split('-') }
+            .flatMap { listOf(it.first() to it.last(), it.last() to it.first()) }
+            .groupBy({ it.first }, { it.second })
+            .mapValues { it.value.toSet() }
 
-            extractNeighbours(connections.tail(), neighbours + aToB + bToA)
-        }
-
-    private fun countPaths(neighbours: Map<String, Set<String>>, toVisit: String, visited: Set<String> = setOf()): Int {
+    private fun countPaths(graph: Graph, toVisit: Node, visited: Set<Node> = setOf(), twice: Boolean): Int {
         if (toVisit == END) return 1
 
+        val newTwice = twice && (!visited.contains(toVisit) || toVisit == START)
         val newVisited = if (isSmall(toVisit)) visited + toVisit else visited
-        val unvisitedNeighbours = neighbours[toVisit]!! - visited
+        val unvisitedNeighbours = graph[toVisit]!! - (if (newTwice) setOf(START) else visited)
 
-        return unvisitedNeighbours.sumOf { countPaths(neighbours, it, newVisited) }
+        return unvisitedNeighbours.sumOf { countPaths(graph, it, newVisited, newTwice) }
     }
 
-    private fun isSmall(cave: String) = cave.any { it.isLowerCase() }
+    private fun isSmall(cave: Node) = cave.any { it.isLowerCase() }
 }

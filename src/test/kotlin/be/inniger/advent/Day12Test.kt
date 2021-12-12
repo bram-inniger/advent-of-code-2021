@@ -60,4 +60,16 @@ class Day12Test {
     fun validateFirstSolution() {
         assertEquals(4_885, Day12.solveFirst(input))
     }
+
+    @Test
+    fun validateSecondSampleInputs() {
+        assertEquals(36, Day12.solveSecond(smallSampleConnections))
+        assertEquals(103, Day12.solveSecond(midSampleConnections))
+        assertEquals(3_509, Day12.solveSecond(largeSampleConnections))
+    }
+
+    @Test
+    fun validateSecondSolution() {
+        assertEquals(117_095, Day12.solveSecond(input))
+    }
 }
