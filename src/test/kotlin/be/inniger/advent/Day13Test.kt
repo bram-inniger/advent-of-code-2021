@@ -41,4 +41,31 @@ class Day13Test {
     fun validateFirstSolution() {
         assertEquals(807, Day13.solveFirst(input))
     }
+
+    @Test
+    fun validateSecondSampleInputs() {
+        val code =
+            """
+                #####
+                #...#
+                #...#
+                #...#
+                #####
+            """.trimIndent()
+        assertEquals(code, Day13.solveSecond(sampleManual))
+    }
+
+    @Test
+    fun validateSecondSolution() {
+        val code =
+            """
+                #.....##..#..#.####..##..#..#.####...##
+                #....#..#.#..#.#....#..#.#..#.#.......#
+                #....#....####.###..#....#..#.###.....#
+                #....#.##.#..#.#....#.##.#..#.#.......#
+                #....#..#.#..#.#....#..#.#..#.#....#..#
+                ####..###.#..#.####..###..##..####..##.
+            """.trimIndent()
+        assertEquals(code, Day13.solveSecond(input))
+    }
 }

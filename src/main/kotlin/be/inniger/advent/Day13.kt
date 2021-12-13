@@ -5,13 +5,18 @@ import be.inniger.advent.util.tail
 
 object Day13 {
 
-    fun solveFirst(manual: String): Int {
+    fun solveFirst(manual: String) = foldManual(manual, once = true).count()
+    fun solveSecond(manual: String) = foldManual(manual, once = false).print()
+
+    private fun foldManual(manual: String, once: Boolean): Set<Point> {
         val (pointsText, instructionsText) = manual.split("\n\n")
 
         val points = readPoints(pointsText)
-        val instructions = instructionsText.split('\n').map { Instruction.of(it) }
+        val instructions = instructionsText.split('\n')
+            .map { Instruction.of(it) }
+            .let { if (once) listOf(it.first()) else it }
 
-        return fold(instructions.subList(0, 1), points).count()
+        return fold(instructions, points)
     }
 
     private fun readPoints(points: String) =
@@ -35,6 +40,14 @@ object Day13 {
 
             fold(instructions.tail(), newPoints)
         }
+
+    private fun Set<Point>.print() =
+        (0..this.maxOf { it.y })
+            .joinToString("\n") { y ->
+                (0..this.maxOf { it.x })
+                    .map { x -> if (this.contains(Point(x, y))) '#' else '.' }
+                    .joinToString("")
+            }
 
     private enum class Direction { HORIZONTAL, VERTICAL }
 
