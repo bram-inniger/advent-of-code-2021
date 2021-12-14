@@ -38,4 +38,14 @@ class Day14Test {
     fun validateFirstSolution() {
         assertEquals(3_411L, Day14.solveFirst(input))
     }
+
+    @Test
+    fun validateSecondSampleInputs() {
+        assertEquals(2_188_189_693_529L, Day14.solveSecond(sampleManual))
+    }
+
+    @Test
+    fun validateSecondSolution() {
+        assertEquals(7_477_815_755_570L, Day14.solveSecond(input))
+    }
 }

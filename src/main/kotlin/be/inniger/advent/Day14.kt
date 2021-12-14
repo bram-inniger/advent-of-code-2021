@@ -2,12 +2,15 @@ package be.inniger.advent
 
 object Day14 {
 
-    fun solveFirst(manual: String): Long {
+    fun solveFirst(manual: String) = componentDiff(manual, 10)
+    fun solveSecond(manual: String) = componentDiff(manual, 40)
+
+    private fun componentDiff(manual: String, nrSteps: Int): Long {
         val (template, rulesText) = manual.split("\n\n")
 
         val pairs = parsePairs(template)
         val rules = parseRules(rulesText)
-        val count = countComponents(step(10, pairs, rules))
+        val count = countComponents(step(nrSteps, pairs, rules))
 
         return count.maxOf { it.value } - count.minOf { it.value }
     }
