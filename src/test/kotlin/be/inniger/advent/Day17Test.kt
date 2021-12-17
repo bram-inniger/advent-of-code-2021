@@ -18,4 +18,14 @@ class Day17Test {
     fun validateFirstSolution() {
         assertEquals(23_005, Day17.solveFirst(input))
     }
+
+    @Test
+    fun validateSecondSampleInputs() {
+        assertEquals(112, Day17.solveSecond(sampleTarget))
+    }
+
+    @Test
+    fun validateSecondSolution() {
+        assertEquals(2_040, Day17.solveSecond(input))
+    }
 }

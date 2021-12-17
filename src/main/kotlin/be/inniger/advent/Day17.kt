@@ -4,7 +4,10 @@ import kotlin.math.max
 
 object Day17 {
 
-    fun solveFirst(target: String): Int {
+    fun solveFirst(target: String) = calculatePaths(target).maxOf { it.maxY }
+    fun solveSecond(target: String) = calculatePaths(target).count()
+
+    private fun calculatePaths(target: String): List<Path> {
         val area = Area.of(target)
 
         return (1..area.xRange.last).flatMap { vX ->
@@ -13,7 +16,6 @@ object Day17 {
             }
         }
             .filter { it.trajectory == Trajectory.HIT }
-            .maxOf { it.maxY }
     }
 
     private tailrec fun calculatePath(area: Area, vX: Int, vY: Int, x: Int = 0, y: Int = 0, maxY: Int = 0): Path =
