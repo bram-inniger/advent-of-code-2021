@@ -45,7 +45,7 @@ object Day08 {
 
     private data class Entry(val signals: List<String>, val output: List<String>) {
         companion object {
-            private val regex = """^((?:\w{2,7} ){10})\|((?: \w{2,7}){4})$""".toRegex()
+            private val regex = """^((?:[a-g]{2,7} ){10})\|((?: [a-g]{2,7}){4})$""".toRegex()
 
             fun of(entry: String): Entry {
                 val (signals, output) = regex.find(entry)!!.destructured
