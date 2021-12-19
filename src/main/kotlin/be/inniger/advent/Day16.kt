@@ -16,6 +16,7 @@ object Day16 {
     private const val NR_PACKS = 11
 
     fun solveFirst(transmission: String) = sumVersions(listOf(parse(toBin(transmission))))
+    fun solveSecond(transmission: String) = parse(toBin(transmission)).value
 
     private fun toBin(hex: String) =
         hex.map { it.digitToInt(HEX).toString(BIN).padStart(PADDING, '0') }
@@ -23,30 +24,28 @@ object Day16 {
 
     private fun parse(packet: String): Packet {
         val version = packet.substring(0, VERSION).toInt(BIN)
-        val type = if (packet.substring(VERSION, VERSION + TYPE) == "100") PacketType.LITERAL else PacketType.OTHER
+        val type = PacketType.lut[packet.substring(VERSION, VERSION + TYPE)]!!
         val content = packet.substring(VERSION + TYPE)
         val lengthType = LengthType.of(content.first())
 
-        return when (type) {
-            PacketType.LITERAL -> {
-                val length = VERSION + TYPE + literal(content).length / (LITERAL - LITERAL_NEXT) * LITERAL
-                Packet(version, type, listOf(), length)
+        return if (type == PacketType.LITERAL) {
+            val value = literal(content)
+            val length = VERSION + TYPE + value.length / (LITERAL - LITERAL_NEXT) * LITERAL
+            Packet(version, type, listOf(), length, value.toLong(BIN))
+        } else when (lengthType) {
+            LengthType.BIT_LENGTH -> {
+                val bitLength = content.substring(TYPE_ID, TYPE_ID + B_LENGTH).toInt(BIN)
+                val containedPackets = parseBitLength(
+                    content.substring(TYPE_ID + B_LENGTH).substring(0, bitLength), bitLength
+                )
+                val length = VERSION + TYPE + TYPE_ID + B_LENGTH + containedPackets.sumOf { it.length }
+                Packet(version, type, containedPackets, length, calculateValue(type, containedPackets))
             }
-            PacketType.OTHER -> when (lengthType) {
-                LengthType.BIT_LENGTH -> {
-                    val bitLength = content.substring(TYPE_ID, TYPE_ID + B_LENGTH).toInt(BIN)
-                    val containedPackets = parseBitLength(
-                        content.substring(TYPE_ID + B_LENGTH).substring(0, bitLength), bitLength
-                    )
-                    val length = VERSION + TYPE + TYPE_ID + B_LENGTH + containedPackets.sumOf { it.length }
-                    Packet(version, type, containedPackets, length)
-                }
-                LengthType.NR_PACKETS -> {
-                    val nrPackets = content.substring(TYPE_ID, TYPE_ID + NR_PACKS).toInt(BIN)
-                    val containedPackets = parseNrPackets(content.substring(TYPE_ID + NR_PACKS), nrPackets)
-                    val length = VERSION + TYPE + TYPE_ID + NR_PACKS + containedPackets.sumOf { it.length }
-                    Packet(version, type, containedPackets, length)
-                }
+            LengthType.NR_PACKETS -> {
+                val nrPackets = content.substring(TYPE_ID, TYPE_ID + NR_PACKS).toInt(BIN)
+                val containedPackets = parseNrPackets(content.substring(TYPE_ID + NR_PACKS), nrPackets)
+                val length = VERSION + TYPE + TYPE_ID + NR_PACKS + containedPackets.sumOf { it.length }
+                Packet(version, type, containedPackets, length, calculateValue(type, containedPackets))
             }
         }
     }
@@ -86,9 +85,27 @@ object Day16 {
         if (content.first() == '0') (value + content.substring(LITERAL_NEXT, LITERAL))
         else literal(content.substring(LITERAL), value + content.substring(LITERAL_NEXT, LITERAL))
 
+    private fun calculateValue(type: PacketType, packets: List<Packet>) =
+        when (type) {
+            PacketType.SUM -> packets.sumOf { it.value }
+            PacketType.PRODUCT -> packets.map { it.value }.reduce { acc, packet -> acc * packet }
+            PacketType.MINIMUM -> packets.minOf { it.value }
+            PacketType.MAXIMUM -> packets.maxOf { it.value }
+            PacketType.LITERAL -> error("Illegal operation $type on packets $packets")
+            PacketType.GREATER_THAN -> if (packets[0].value > packets[1].value) 1 else 0
+            PacketType.LESS_THAN -> if (packets[0].value < packets[1].value) 1 else 0
+            PacketType.EQUAL_TO -> if (packets[0].value == packets[1].value) 1 else 0
+        }
+
     private enum class PacketType(val typeId: String) {
+        SUM("000"),
+        PRODUCT("001"),
+        MINIMUM("010"),
+        MAXIMUM("011"),
         LITERAL("100"),
-        OTHER("");
+        GREATER_THAN("101"),
+        LESS_THAN("110"),
+        EQUAL_TO("111");
 
         companion object {
             val lut = values().associateBy { it.typeId }
@@ -108,5 +125,11 @@ object Day16 {
         }
     }
 
-    private data class Packet(val version: Int, val type: PacketType, val packets: List<Packet>, val length: Int)
+    private data class Packet(
+        val version: Int,
+        val type: PacketType,
+        val packets: List<Packet>,
+        val length: Int,
+        val value: Long
+    )
 }
