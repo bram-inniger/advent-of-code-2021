@@ -14,7 +14,16 @@ object Day18 {
     private val constantPairRegex = """^\[(\d+),(\d+)]$""".toRegex()
     private val commaRegex = """,""".toRegex()
 
-    fun solveFirst(numbers: List<String>) = magnitude(sum(numbers))
+    fun solveFirst(numbers: List<String>) =
+        magnitude(sum(numbers))
+
+    fun solveSecond(numbers: List<String>) =
+        numbers.flatMap { first ->
+            numbers.filter { second -> second != first }
+                .map { second -> listOf(first, second) }
+        }
+            .map { sum(it) }
+            .maxOf { magnitude(it) }
 
     private tailrec fun sum(numbers: List<String>): String =
         if (numbers.size == 1) numbers.single()
@@ -110,8 +119,8 @@ object Day18 {
         return number.substring(0, location.first) + "[$left,$right]" + number.substring(location.last + 1)
     }
 
-    private fun magnitude(number: String): Long =
-        if (literalRegex.matches(number)) number.toLong()
+    private fun magnitude(number: String): Int =
+        if (literalRegex.matches(number)) number.toInt()
         else {
             val left = if (number[1] == '[') {
                 val closing = findClosing(number.substring(1)) + 2
