@@ -5,7 +5,6 @@ object Day20 {
     private const val PADDING = 2
 
     fun solveFirst(scanner: String) = solve(scanner, 2)
-
     fun solveSecond(scanner: String) = solve(scanner, 50)
 
     private fun solve(scanner: String, count: Int): Int {
