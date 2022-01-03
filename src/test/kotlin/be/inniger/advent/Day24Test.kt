@@ -17,4 +17,14 @@ class Day24Test {
     fun validateFirstSolution() {
         assertEquals("39494195799979", Day24.solveFirst(input))
     }
+
+    @Test
+    fun validateSecondSampleInputs() {
+        // No test inputs
+    }
+
+    @Test
+    fun validateSecondSolution() {
+        assertEquals("13161151139617", Day24.solveSecond(input))
+    }
 }

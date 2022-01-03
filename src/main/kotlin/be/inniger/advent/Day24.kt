@@ -19,10 +19,15 @@ object Day24 {
      *
      * To get the maximum number, start from [01], solve the equations, picking the maximum allowed values,
      * For [01] this would be "3", making [14] equal to "9".
+     *
+     * To get the minimum number, start from [01], solve the equations, picking the minimum allowed values,
+     * For [01] this would be "1", making [14] equal to "7".
      */
     private val maxModelNumber = listOf(3, 9, 4, 9, 4, 1, 9, 5, 7, 9, 9, 9, 7, 9)
+    private val minModelNumber = listOf(1, 3, 1, 6, 1, 1, 5, 1, 1, 3, 9, 6, 1, 7)
 
     fun solveFirst(instructions: List<String>) = validate(maxModelNumber, instructions).join()
+    fun solveSecond(instructions: List<String>) = validate(minModelNumber, instructions).join()
 
     private fun validate(modelNumber: List<Int>, instructions: List<String>) =
         if (monadDecompiled(modelNumber) && monad(modelNumber, instructions.map { Instruction.of(it) })) modelNumber
