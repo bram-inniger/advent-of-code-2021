@@ -4,8 +4,8 @@ object Day25 {
 
     fun solveFirst(cucumbers: List<String>) =
         moveAll(
-            east = Group(parse(cucumbers, '>')),
-            south = Group(parse(cucumbers, 'v')),
+            east = parse(cucumbers, '>'),
+            south = parse(cucumbers, 'v'),
             width = cucumbers.first().length,
             height = cucumbers.size
         )
@@ -15,18 +15,21 @@ object Day25 {
             cucumbers.first().indices
                 .filter { hor -> cucumbers[ver][hor] == type }
                 .map { hor -> Position(ver, hor) }
-        }.toSet()
+        }
+            .toSet()
+            .let { Group(it) }
 
     private tailrec fun moveAll(east: Group, south: Group, width: Int, height: Int, count: Int = 0): Int =
         if (east.stuck && south.stuck) count
         else {
-            val newEast = move(Direction.EAST, east, south, width, height)
-            val newSouth = move(Direction.SOUTH, newEast, south, width, height)
+            val move = { direction: Direction, group: Group -> moveHelper(direction, group, south, width, height) }
+            val newEast = move(Direction.EAST, east)
+            val newSouth = move(Direction.SOUTH, newEast)
 
             moveAll(newEast, newSouth, width, height, count + 1)
         }
 
-    private fun move(direction: Direction, east: Group, south: Group, width: Int, height: Int) =
+    private fun moveHelper(direction: Direction, east: Group, south: Group, width: Int, height: Int) =
         when (direction) {
             Direction.EAST -> east.positions
             Direction.SOUTH -> south.positions
