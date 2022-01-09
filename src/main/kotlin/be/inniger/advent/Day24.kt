@@ -1,6 +1,9 @@
 package be.inniger.advent
 
 import be.inniger.advent.util.head
+import be.inniger.advent.util.peek
+import be.inniger.advent.util.pop
+import be.inniger.advent.util.push
 import be.inniger.advent.util.tail
 
 object Day24 {
@@ -39,40 +42,38 @@ object Day24 {
     // Decompiling the input's groups creates this equivalent Kotlin program.
     // This program then translates into the digit rules above, allowing to solve Day24 on paper.
     private fun monadDecompiled(modelNumber: List<Int>): Boolean {
-        fun ArrayDeque<Int>.peek() = this.lastOrNull() ?: 0
-        fun <T> ArrayDeque<T>.push(element: T) = this.addLast(element)
-        fun <T> ArrayDeque<T>.pop() = this.removeLast()
+        fun ArrayDeque<Int>.peek0() = this.peek() ?: 0
 
         var i = 0
 
         val z = ArrayDeque<Int>()
 
         var w = modelNumber[i++]
-        if (w != z.peek() + 13) z.push(w + 6)
+        if (w != z.peek0() + 13) z.push(w + 6)
 
         w = modelNumber[i++]
-        if (w != z.peek() + 15) z.push(w + 7)
+        if (w != z.peek0() + 15) z.push(w + 7)
 
         w = modelNumber[i++]
-        if (w != z.peek() + 15) z.push(w + 10)
+        if (w != z.peek0() + 15) z.push(w + 10)
 
         w = modelNumber[i++]
-        if (w != z.peek() + 11) z.push(w + 2)
+        if (w != z.peek0() + 11) z.push(w + 2)
 
         w = modelNumber[i++]
         if (w != z.pop() - 7) z.push(w + 16)
 
         w = modelNumber[i++]
-        if (w != z.peek() + 10) z.push(w + 8)
+        if (w != z.peek0() + 10) z.push(w + 8)
 
         w = modelNumber[i++]
-        if (w != z.peek() + 10) z.push(w + 1)
+        if (w != z.peek0() + 10) z.push(w + 1)
 
         w = modelNumber[i++]
         if (w != z.pop() - 5) z.push(w + 10)
 
         w = modelNumber[i++]
-        if (w != z.peek() + 15) z.push(w + 5)
+        if (w != z.peek0() + 15) z.push(w + 5)
 
         w = modelNumber[i++]
         if (w != z.pop() - 3) z.push(w + 3)
